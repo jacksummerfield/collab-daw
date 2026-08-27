@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: daw-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: daw_user
+      POSTGRES_PASSWORD: daw_password
+      POSTGRES_DB: daw_database
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  minio:
+    image: minio/minio:latest
+    container_name: daw-minio
+    restart: always
+    environment:
+      MINIO_ROOT_USER: minio_admin
+      MINIO_ROOT_PASSWORD: minio_password123
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000" # API Port
+      - "9001:9001" # Web Console Port
+    volumes:
+      - minio_data:/data
+
+volumes:
+  postgres_data:
+  minio_data:
