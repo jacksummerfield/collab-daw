@@ -13,6 +13,7 @@ elif [ -f "real-time-daw/docker-compose.yml" ]; then
   cd real-time-daw
   docker-compose up -d
   echo "Waiting for Postgre SQL to intialise..."
+  cd ..     # return to root dir
   sleep 3
 else
   echo "Error: Could not find docker-compose.yml"
@@ -29,8 +30,9 @@ if [ -f "real-time-daw/venv/bin/activate" ]; then
 elif [ -f "venv/bin/activate" ]; then
   source venv/bin/activate
 else
-  echo "Error: Python virtual environment (venv) not found."
-  exit 1
+  echo "Creating Python Virtual Environment"
+  python3 -m venv real-time-daw/venv
+  source real-time-daw/venv/bin/activate
 fi
 
 # Navigate to where main.py lives (adjust if your backend folder has a specific name)
@@ -67,7 +69,6 @@ echo "Vite frontend running with PID $FRONTEND_PID"
 
 echo "=================================================="
 echo "🚀 Collab DAW is fully running!"
-# echo " - RONTEND_PID; docker compose down; exit" INT
 trap "echo 'Shutting down'; docker compose down; kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; exit" INT
 
 # Keep script running
