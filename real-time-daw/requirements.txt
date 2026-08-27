@@ -11,6 +11,7 @@ greenlet==3.5.5
 h11==0.16.0
 idna==3.19
 minio==7.2.20
+psycopg2-binary==2.9.12
 pycparser==3.0
 pycryptodome==3.23.0
 pydantic==2.13.4
