@@ -3,8 +3,12 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
+# Stores directory from which the script was run
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 echo "=== 1. Starting Docker Infrastructure (PostgreSQL & MinIO) ==="
 # Check if docker-compose.yml is in the root or inside real-time-daw
+cd "$SCRIPT_DIR"
 if [ -f "docker-compose.yml" ]; then
   docker-compose up -d
   echo "Waiting for PostgreSQL to initialize..."
@@ -13,7 +17,6 @@ elif [ -f "real-time-daw/docker-compose.yml" ]; then
   cd real-time-daw
   docker-compose up -d
   echo "Waiting for Postgre SQL to intialise..."
-  cd ..     # return to root dir
   sleep 3
 else
   echo "Error: Could not find docker-compose.yml"
@@ -21,7 +24,7 @@ else
 fi
 
 # Make sure we are back at the root directory (collab-daw)
-cd "$(dirname "$0")"
+cd "$SCRIPT_DIR"
 
 echo "=== 2. Starting FastAPI Backend ==="
 # Activate virtual environment and start uvicorn in the background
@@ -49,7 +52,7 @@ BACKEND_PID=$!
 echo "FastAPI running with PID $BACKEND_PID"
 
 # Return to root
-cd "$(dirname "$0")"
+cd "$SCRIPT_DIR"
 
 echo "=== 3. Starting React Frontend (Vite) ==="
 if [ -d "real-time-daw/frontend" ]; then
