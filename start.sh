@@ -66,7 +66,7 @@ FRONTEND_PID=$!
 echo "Vite frontend running with PID $FRONTEND_PID"
 
 echo "=================================================="
-echo "🚀 Collab DAW is fully running!"
+echo "Collab DAW is fully running!"
 # echo " - RONTEND_PID; docker compose down; exit" INT
 trap "echo 'Shutting down'; docker compose down; kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; exit" INT
 
