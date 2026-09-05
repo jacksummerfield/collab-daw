@@ -3,8 +3,12 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
+# Stores directory from which the script was run
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 echo "=== 1. Starting Docker Infrastructure (PostgreSQL & MinIO) ==="
 # Check if docker-compose.yml is in the root or inside real-time-daw
+cd "$SCRIPT_DIR"
 if [ -f "docker-compose.yml" ]; then
   docker-compose up -d
   echo "Waiting for PostgreSQL to initialize..."
@@ -20,7 +24,7 @@ else
 fi
 
 # Make sure we are back at the root directory (collab-daw)
-cd "$(dirname "$0")"
+cd "$SCRIPT_DIR"
 
 echo "=== 2. Starting FastAPI Backend ==="
 # Activate virtual environment and start uvicorn in the background
@@ -29,8 +33,9 @@ if [ -f "real-time-daw/venv/bin/activate" ]; then
 elif [ -f "venv/bin/activate" ]; then
   source venv/bin/activate
 else
-  echo "Error: Python virtual environment (venv) not found."
-  exit 1
+  echo "Creating Python Virtual Environment"
+  python3 -m venv real-time-daw/venv
+  source real-time-daw/venv/bin/activate
 fi
 
 # Navigate to where main.py lives (adjust if your backend folder has a specific name)
@@ -47,7 +52,7 @@ BACKEND_PID=$!
 echo "FastAPI running with PID $BACKEND_PID"
 
 # Return to root
-cd "$(dirname "$0")"
+cd "$SCRIPT_DIR"
 
 echo "=== 3. Starting React Frontend (Vite) ==="
 if [ -d "real-time-daw/frontend" ]; then
@@ -66,8 +71,7 @@ FRONTEND_PID=$!
 echo "Vite frontend running with PID $FRONTEND_PID"
 
 echo "=================================================="
-echo "Collab DAW is fully running!"
-# echo " - RONTEND_PID; docker compose down; exit" INT
+echo "🚀 Collab DAW is fully running!"
 trap "echo 'Shutting down'; docker compose down; kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; exit" INT
 
 # Keep script running
